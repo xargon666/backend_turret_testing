@@ -3,10 +3,12 @@ Testing Project - backend repo
 
 ## Setup
 
-### Install dependencies
+### Installations
 
 1. `pip install -r requirements.txt` 
 This will install all dependencies for the project from the requirements.txt file.
+2. `pipenv run init_db` 
+initializes the local postgres database. This will appear in the turret_testing_server folder within the root directory.
 
 ### Run the project
 
