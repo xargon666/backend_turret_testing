@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, make_response, current_app as app
-from ..models import questions
+from ..models.questions import Questions
 from ..database.db import db
 from functools import wraps
 import uuid
@@ -19,7 +19,7 @@ def token_required(f):
             return jsonify({'message': 'a valid token is missing'})
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = questions.Questions.query.filter_by(id=data['id']).first()
+            current_user = Questions.query.filter_by(id=data['id']).first()
         except:
             return jsonify({'message': 'token is invalid'})
         return f(current_user, *args, **kwargs)
@@ -36,11 +36,11 @@ def index():
                 "completed": Questions.completed,
                 "username": Questions.username
             }
-        all_todos = questions.Questions.query.all()
+        all_todos = Questions.query.all()
         return jsonify([*map(todo_serializer, all_todos)]),200
     else:
         content = request.json
-        Questions = questions.Questions(
+        Questions = Questions(
             id = f'{uuid.uuid1()}',
             description = content["description"],
             completed = content["completed"],
@@ -54,16 +54,16 @@ def index():
 def change_todo(id):
     if request.method == "PUT":
         content = request.json
-        Questions = questions.Questions.query.filter_by(id=id).first()
+        Questions = Questions.query.filter_by(id=id).first()
         # Questions.description = content["description"]
         Questions.completed = content["completed"]
         db.session.commit()
         return jsonify({"message": "Questions updated successfully."}), 200
     elif request.method == "GET":
-        Questions = questions.Questions.query.filter_by(id=id).first()
+        Questions = Questions.query.filter_by(id=id).first()
         return jsonify({"id": Questions.id, "description": Questions.description, "completed": Questions.completed, "username": Questions.username}), 200
     else:
-        Questions = questions.Questions.query.filter_by(id=id).first()
+        Questions = Questions.query.filter_by(id=id).first()
         db.session.delete(Questions)
         db.session.commit()
         return jsonify({"message": "Questions deleted successfully."}), 200
